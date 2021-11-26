@@ -6,7 +6,7 @@ import glob
 from utils import get_chromagram
 import librosa
 import os.path
-
+from tqdm import tqdm
 class AudioDataset(torch.utils.data.Dataset):
      def __init__(self, training_files, hop_length=256, shuffle=True):
           self.audio_files = training_files
@@ -18,13 +18,13 @@ class AudioDataset(torch.utils.data.Dataset):
      def __getitem__(self, index):
           filename = self.audio_files[index]
 
-          if os.path.isfile(filename.replace(".wav",".npy")):
-               chroma = np.load(filename.replace(".wav",".npy"))
+          if os.path.isfile(filename.replace(".wav","_"+str(self.hop_length)+".npy")):
+               chroma = np.load(filename.replace(".wav","_"+str(self.hop_length)+".npy"))
                chromagram = torch.from_numpy(chroma)
           else:
                chroma = get_chromagram(filename)
-               np.save(filename.replace(".wav",".npy"), chroma)
-               chromagram = torch.from_numpy(get_chromagram(filename, plot=False, inbatch=False, hop_length=self.hop_length))
+               np.save(filename.replace(".wav","_"+str(self.hop_length)+".npy"), chroma)
+               chromagram = torch.from_numpy(chroma)
           file_id = filename.split("/")[-1]
 
           return file_id, chromagram
@@ -68,12 +68,20 @@ class AudioCollate():
           return file_id, choroma_padded
 
 if __name__ == "__main__":
-     songs_list = glob.glob("/home/nhandt23/Desktop/Hum2Song/data/train/song/????.wav")
-     for song in songs_list:
-          try:
-               x, sr = librosa.load(song)
-          except:
-               print(song)
+     # songs_list = glob.glob("/home/nhandt23/Desktop/Hum2Song/data/train/song/????.wav")
+
+     songs_list = glob.glob("/home/nhandt23/Desktop/Hum2Song/data/train/hum/????.wav")
+     songs_list.sort()
+
+     # songs_list = glob.glob("/home/nhandt23/Desktop/Hum2Song/data/public_test/hum/????.wav")
+     for song in tqdm(songs_list):
+          # try:
+          # x, sr = librosa.load(song)
+          chroma = get_chromagram(song)
+          print(song)
+          print(np.mean(chroma))
+          # except:
+          #      print(song)
 
 # /home/nhandt23/Desktop/Hum2Song/data/train/song/1356.wav
 # /home/nhandt23/Desktop/Hum2Song/data/train/song/0806.wav
