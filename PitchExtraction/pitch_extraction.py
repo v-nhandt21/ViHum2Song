@@ -1,12 +1,13 @@
+# A mobile-compatible pitch extraction model to recognize the dominant pitch in sung audio. 
+# Trained (in a self-supervised way) on the MIR-1k dataset.
+
 import tensorflow_hub as hub
 import tensorflow as tf
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.io import wavfile
-
 from dtaidistance import dtw
 from dtaidistance import dtw_visualisation as dtwvis
-
 
 model = hub.load("https://tfhub.dev/google/spice/2")
 
@@ -28,22 +29,6 @@ def get_pitch(model, fpath, threshold=0.7):
   pitch_x, pitch_y = zip(*pitch_filters)
   pitch_y = np.array(pitch_y) - np.average(pitch_y)
   return pitch_x, pitch_y
-
-
-
-# with open('data/train/train_meta.csv', 'r') as fread, open('distance.txt', 'w') as fwrite:
-#   for line in fread:
-#     try:
-#       music_id, song_path, hum_path = line.strip().split(',')
-#       if song_path.endswith('wav'):
-#         song_pitch_x, song_pitch_y = get_pitch(model, song_path)
-#         hum_pitch_x, hum_pitch_y = get_pitch(model, hum_path)
-#         # https://dtaidistance.readthedocs.io/en/latest/usage/subsequence.html#dtw-subsequence-search
-#         distance = dtw.distance(song_pitch_y, hum_pitch_y)
-#         fwrite.write("{} {}\n".format(music_id, distance))
-#         print(music_id, distance)
-#     except:
-#       pass
 
 song_pitch_x, song_pitch_y = get_pitch(model, '/home/tuanpv/workspace/zaloai2021/music/data/train/song/0011.wav')
 hum_pitch_x, hum_pitch_y = get_pitch(model, '/home/tuanpv/workspace/zaloai2021/music/data/train/hum/0011.wav')
