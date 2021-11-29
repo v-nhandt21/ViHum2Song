@@ -48,7 +48,6 @@ if __name__ == "__main__":
      optimizer = optim.Adam(model.parameters(), lr=0.001)
 
      sw = SummaryWriter("Outdir/logdir")
-     steps = 0
 
      for epoch in range(epochs):
           running_loss = []
@@ -66,10 +65,10 @@ if __name__ == "__main__":
 
                running_loss.append(losses.cpu().detach().numpy())
 
-               logs.write("Epoch: {}/{} - Loss: {:.4f}\n".format(epoch, epochs, np.mean(running_loss)))
+          logs.write("Epoch: {}/{} - Loss: {:.4f}\n".format(epoch, epochs, float(np.mean(running_loss))) )
 
-               sw.add_scalar("Loss", losses, steps)
-               steps+=1
+          sw.add_scalar("Loss", np.mean(running_loss), epoch)
+               
 
           if epoch%10==0:
                torch.save({'model': model.state_dict()}, "Outdir/"+str(epoch))
