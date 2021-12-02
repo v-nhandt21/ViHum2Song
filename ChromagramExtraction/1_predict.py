@@ -42,7 +42,7 @@ def optimize_top_10(target, top10, \
      sdtw_trik = SoftDTW(use_cuda=True, gamma=gamma).to("cuda")
      # print(len(top10.keys()))
      # print(top10)
-     tg = torch.from_numpy(get_chromagram(path_hum+target+".wav", plot=False, inbatch=True, hop_length=hop_length)).to("cuda")
+     tg = torch.from_numpy(get_chromagram(path_hum+target+".wav", hop_length=hop_length, plot=False, inbatch=True)).to("cuda")
      for song in top10.keys():
           song = path_song+str(song)+".wav"
 
@@ -50,7 +50,7 @@ def optimize_top_10(target, top10, \
                chroma = np.load(song.replace(".wav","_"+str(hop_length)+".npy"))
                sg = torch.from_numpy(chroma)
           else:
-               chroma = get_chromagram(song, plot=False, inbatch=True, hop_length=hop_length)
+               chroma = get_chromagram(song, hop_length=hop_length, plot=False, inbatch=True)
                np.save(song.replace(".wav","_"+str(hop_length)+".npy"), chroma)
                sg = torch.from_numpy(chroma)
           # sg = torch.from_numpy(get_chromagram(song, plot=False, inbatch=True, hop_length=hop_length))
@@ -112,7 +112,7 @@ if __name__ == "__main__":
           print(hum)
           target_song = hum.split("/")[-1].split(".")[0]
 
-          hum = torch.from_numpy(get_chromagram(hum, plot=False, inbatch=True, hop_length=hop_length)).to("cuda")
+          hum = torch.from_numpy(get_chromagram(hum, hop_length=hop_length, plot=False, inbatch=True)).to("cuda")
           print(hum.shape)
 
           songs_list = glob.glob("/home/nhandt23/Desktop/Hum2Song/data/public_test/full_song/??????????.wav")
@@ -128,7 +128,7 @@ if __name__ == "__main__":
                     chroma = np.load(song.replace(".wav","_"+str(hop_length)+".npy"))
                     chromagram = torch.from_numpy(chroma)
                else:
-                    chroma = get_chromagram(song, plot=False, inbatch=True, hop_length=hop_length)
+                    chroma = get_chromagram(song, hop_length=hop_length, plot=False, inbatch=True)
                     np.save(song.replace(".wav","_"+str(hop_length)+".npy"), chroma)
                     chromagram = torch.from_numpy(chroma)
                

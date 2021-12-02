@@ -423,6 +423,8 @@ if __name__ == "__main__":
 
     torch.manual_seed(1234)
 
-    profile(128, 17, 15, 2, tol_backward=1e-6)
-    profile(512, 64, 64, 2, tol_backward=1e-4)
-    profile(512, 256, 256, 2, tol_backward=1e-3)
+    # profile(128, 17, 15, 2, tol_backward=1e-6)
+    # profile(512, 64, 64, 2, tol_backward=1e-4)
+    # profile(512, 256, 256, 2, tol_backward=1e-3)
+
+    profile(8, 1020, 1020, 12, tol_backward=1e-3)

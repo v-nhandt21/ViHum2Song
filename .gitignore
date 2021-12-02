@@ -1,1 +1,3 @@
 data/*
+Outdir/*
+__pycache__/*

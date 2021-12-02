@@ -1,34 +1,39 @@
-import librosa
+import librosa, torch
 import numpy as np
 import matplotlib
 import matplotlib.pylab as plt
 import glob
 from tqdm import tqdm
+import sys
 
 def norm(nparrary):
      m = np.mean(nparrary, axis=0)
      sd = np.std(nparrary, axis=0)
      return (nparrary - m)/sd
 
-def get_chromagram(path, plot=False, inbatch=False, hop_length=256):
-     x, sr = librosa.load(path, sr=16000)
-     hop_length=256
-     chromagram = librosa.feature.chroma_stft(x, sr=sr, hop_length=hop_length)
+def get_chromagram(path, hop_length, plot=False, inbatch=False):
 
-     if plot:
-          print(chromagram.shape)
+     try:
+          x, sr = librosa.load(path, sr=16000)
+          chromagram = librosa.feature.chroma_stft(x, sr=sr, hop_length=hop_length)
 
-          fig, ax = plt.subplots()
-          img = librosa.display.specshow(chromagram, y_axis='chroma', x_axis='time', ax=ax)
-          fig.savefig("chroma.png")
-     
-     if inbatch:
-          chromagram = np.expand_dims(chromagram.T, axis=0)
-     else:
-          chromagram = chromagram.T
+          if plot:
+               print(chromagram.shape)
 
-     # chromagram = norm(chromagram)
-     return chromagram
+               fig, ax = plt.subplots()
+               img = librosa.display.specshow(chromagram, y_axis='chroma', x_axis='time', ax=ax)
+               fig.savefig("chroma.png")
+          
+          if inbatch:
+               chromagram = np.expand_dims(chromagram.T, axis=0)
+          else:
+               chromagram = chromagram.T
+
+          # chromagram = norm(chromagram)
+          return chromagram
+     except:
+          print(path)
+          sys.exit()
 
 def get_top_10(top10, batch_candidate):
      merge_candidate = {**top10, **batch_candidate}
@@ -66,6 +71,12 @@ def get_duration(path="/home/nhandt23/Desktop/Hum2Song/data/public_test/hum/", p
 
      return DUR
 
+def to_gpu(x):
+     x = x.contiguous()
+     if torch.cuda.is_available():
+          x = x.cuda(non_blocking=True)
+     return torch.autograd.Variable(x)
+     
 if __name__ == "__main__":
      aa = 0
 

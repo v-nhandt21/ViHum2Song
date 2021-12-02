@@ -19,11 +19,20 @@ class AudioDataset(torch.utils.data.Dataset):
      def __getitem__(self, index):
           filename = self.audio_files[index]
 
+          # x1, sr = librosa.load(filename, sr=16000)
+          # x2, sr = librosa.load(filename.replace("song","hum"), sr=16000)
+          # return torch.from_numpy(librosa.stft(x1).T), torch.from_numpy(librosa.stft(x2).T)
+
+
+
+
+
+
           if os.path.isfile(filename.replace(".wav","_"+str(self.hop_length)+".npy")):
                chroma = np.load(filename.replace(".wav","_"+str(self.hop_length)+".npy"))
                chromagram = torch.from_numpy(chroma)
           else:
-               chroma = get_chromagram(filename)
+               chroma = get_chromagram(filename, self.hop_length)
                np.save(filename.replace(".wav","_"+str(self.hop_length)+".npy"), chroma)
                chromagram = torch.from_numpy(chroma)
           
@@ -31,12 +40,12 @@ class AudioDataset(torch.utils.data.Dataset):
                file_id = filename.split("/")[-1]
                return file_id, chromagram
           else:
-               humnum = filename.replace("song","hum").replace(".wav",".wav.wav")
+               humnum = filename.replace("song","hum")
                if os.path.isfile(humnum.replace(".wav","_"+str(self.hop_length)+".npy")):
                     chroma_hum = np.load(humnum.replace(".wav","_"+str(self.hop_length)+".npy"))
                     chromagram_hum = torch.from_numpy(chroma_hum)
                else:
-                    chroma_hum = get_chromagram(humnum)
+                    chroma_hum = get_chromagram(humnum, self.hop_length)
                     np.save(humnum.replace(".wav","_"+str(self.hop_length)+".npy"), chroma_hum)
                     chromagram_hum = torch.from_numpy(chroma_hum)      
 
@@ -101,10 +110,15 @@ class AudioCollateTrain():
 
           for i in range(len(ids_sorted_decreasing)):
                choroma = batch[ids_sorted_decreasing[i]][1]
-               choroma_padded[i, :choroma.size(0)] = choroma
+
+               paddingL = int((max_input_len-choroma.size(0))/2)
+               paddingU = int((max_input_len-choroma.size(0))/2+choroma.size(0))
+               choroma_padded[i, paddingL:paddingU] = choroma
 
                choroma_hum = batch[ids_sorted_decreasing[i]][0]
-               choroma_padded_hum[i, :choroma_hum.size(0)] = choroma_hum
+               paddingL = int((max_input_len_hum-choroma_hum.size(0))/2)
+               paddingU = int((max_input_len_hum-choroma_hum.size(0))/2+choroma_hum.size(0))
+               choroma_padded_hum[i, paddingL:paddingU] = choroma_hum
 
           return choroma_padded_hum, choroma_padded
 
@@ -116,16 +130,34 @@ if __name__ == "__main__":
 
      # songs_list = glob.glob("/home/nhandt23/Desktop/Hum2Song/data/public_test/hum/????.wav")
      for song in tqdm(songs_list):
-          # try:
-          # x, sr = librosa.load(song)
-          chroma = get_chromagram(song)
-          print(song)
-          print(np.mean(chroma))
-          # except:
-          #      print(song)
+          try:
+               x, sr = librosa.load(song)
+               chroma = get_chromagram(song)
+          
+          except:
+               print(song)
+
+# Song
 
 # /home/nhandt23/Desktop/Hum2Song/data/train/song/1356.wav
 # /home/nhandt23/Desktop/Hum2Song/data/train/song/0806.wav
 # /home/nhandt23/Desktop/Hum2Song/data/train/song/0489.wav
 # /home/nhandt23/Desktop/Hum2Song/data/train/song/2461.wav
 # /home/nhandt23/Desktop/Hum2Song/data/train/song/2560.wav
+
+# Hum
+
+# /home/nhandt23/Desktop/Hum2Song/data/train/song/0371.wav
+# /home/nhandt23/Desktop/Hum2Song/data/train/song/0375.wav
+# /home/nhandt23/Desktop/Hum2Song/data/train/song/0376.wav
+# /home/nhandt23/Desktop/Hum2Song/data/train/song/0497.wav
+# /home/nhandt23/Desktop/Hum2Song/data/train/song/0795.wav
+# /home/nhandt23/Desktop/Hum2Song/data/train/song/1409.wav
+# /home/nhandt23/Desktop/Hum2Song/data/train/song/2297.wav
+# /home/nhandt23/Desktop/Hum2Song/data/train/song/2302.wav
+# /home/nhandt23/Desktop/Hum2Song/data/train/song/2307.wav
+# /home/nhandt23/Desktop/Hum2Song/data/train/song/2527.wav
+# /home/nhandt23/Desktop/Hum2Song/data/train/song/2543.wav
+# /home/nhandt23/Desktop/Hum2Song/data/train/song/2560.wav
+# /home/nhandt23/Desktop/Hum2Song/data/train/song/2836.wav
+# /home/nhandt23/Desktop/Hum2Song/data/train/song/2837.wav

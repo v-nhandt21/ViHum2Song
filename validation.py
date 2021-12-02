@@ -21,10 +21,10 @@ from model import BiRNN
 
 def optimize_top_10(target, top10, path="/home/nhandt23/Desktop/Hum2Song/data/train/song/", hop_length=64, gamma = 0.005):
      optimize = {}
-     tg = torch.from_numpy(get_chromagram("/home/nhandt23/Desktop/Hum2Song/data/train/hum/"+target, plot=False, inbatch=True, hop_length=hop_length)).to("cuda")
+     tg = torch.from_numpy(get_chromagram("/home/nhandt23/Desktop/Hum2Song/data/train/hum/"+target, hop_length=hop_length, plot=False, inbatch=True)).to("cuda")
      print("===========================", top10.keys())
      for i, song in enumerate(top10.keys()):
-          sg = torch.from_numpy(get_chromagram(path+song, plot=False, inbatch=True, hop_length=hop_length)).to("cuda")
+          sg = torch.from_numpy(get_chromagram(path+song, hop_length=hop_length, plot=False, inbatch=True)).to("cuda")
           loss = sdtw(sg, tg).tolist()[0]
           optimize[song] = loss
      return dict(sorted(optimize.items(), key=lambda item: item[1])[:10])
@@ -49,7 +49,7 @@ if __name__ == "__main__":
      for idxH, hum in enumerate(hums_list):
           target_song = hum.split("/")[-1]
 
-          hum = torch.from_numpy(get_chromagram(hum, plot=False, inbatch=True, hop_length=hop_length))
+          hum = torch.from_numpy(get_chromagram(hum, hop_length=hop_length, plot=False, inbatch=True))
 
           songs_list = glob.glob("/home/nhandt23/Desktop/Hum2Song/data/train/song/????.wav")
           songs_list.sort()
