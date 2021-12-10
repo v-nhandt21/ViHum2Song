@@ -5,6 +5,18 @@ import matplotlib.pylab as plt
 import glob
 from tqdm import tqdm
 import sys
+import matplotlib
+import matplotlib.pylab as plt
+
+def plot_spectrogram(spectrogram, filename):
+     fig, ax = plt.subplots(figsize=(12, 3))
+     im = ax.imshow(spectrogram, aspect="auto", origin="lower",
+                    interpolation='none')
+     plt.colorbar(im, ax=ax)
+     plt.xlabel("Frames")
+     plt.ylabel("Channels")
+     plt.tight_layout()
+     plt.savefig(filename)
 
 def norm(nparrary):
      m = np.mean(nparrary, axis=0)
@@ -42,9 +54,11 @@ def get_top_10(top10, batch_candidate):
      return dict(sorted(merge_candidate.items(), key=lambda item: item[1])[:10])
 
 def get_score(target, top10):
+     print(top10)
      for i, song in enumerate(top10.keys()):
           if target == song:
                return 1/(i+1)
+
      return 0
 
 def get_predict(target, top10):

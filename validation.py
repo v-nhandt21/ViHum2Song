@@ -29,6 +29,30 @@ def optimize_top_10(target, top10, path="/home/nhandt23/Desktop/Hum2Song/data/tr
           optimize[song] = loss
      return dict(sorted(optimize.items(), key=lambda item: item[1])[:10])
 
+RM = ["/home/nhandt23/Desktop/Hum2Song/data/train/song/1356.wav",
+     "/home/nhandt23/Desktop/Hum2Song/data/train/song/0806.wav",
+     "/home/nhandt23/Desktop/Hum2Song/data/train/song/0489.wav",
+     "/home/nhandt23/Desktop/Hum2Song/data/train/song/2461.wav",
+     "/home/nhandt23/Desktop/Hum2Song/data/train/song/2560.wav",
+     "/home/nhandt23/Desktop/Hum2Song/data/train/song/0371.wav",
+     "/home/nhandt23/Desktop/Hum2Song/data/train/song/0375.wav",
+     "/home/nhandt23/Desktop/Hum2Song/data/train/song/0376.wav",
+
+     "/home/nhandt23/Desktop/Hum2Song/data/train/song/0378.wav",
+     "/home/nhandt23/Desktop/Hum2Song/data/train/song/0489.wav",
+
+     "/home/nhandt23/Desktop/Hum2Song/data/train/song/0497.wav",
+     "/home/nhandt23/Desktop/Hum2Song/data/train/song/0795.wav",
+     "/home/nhandt23/Desktop/Hum2Song/data/train/song/1409.wav",
+     "/home/nhandt23/Desktop/Hum2Song/data/train/song/2297.wav",
+     "/home/nhandt23/Desktop/Hum2Song/data/train/song/2302.wav",
+     "/home/nhandt23/Desktop/Hum2Song/data/train/song/2307.wav",
+     "/home/nhandt23/Desktop/Hum2Song/data/train/song/2527.wav",
+     "/home/nhandt23/Desktop/Hum2Song/data/train/song/2543.wav",
+     "/home/nhandt23/Desktop/Hum2Song/data/train/song/2560.wav",
+     "/home/nhandt23/Desktop/Hum2Song/data/train/song/2836.wav",
+     "/home/nhandt23/Desktop/Hum2Song/data/train/song/2837.wav"]
+
 if __name__ == "__main__":
      batch_size = 8
      num_workers = 8
@@ -38,7 +62,8 @@ if __name__ == "__main__":
 
      sdtw = SoftDTW(use_cuda=True, gamma=gamma).to("cuda")
 
-     hums_list = glob.glob("/home/nhandt23/Desktop/Hum2Song/data/train/hum/????.wav")
+     hums_set = glob.glob("/home/nhandt23/Desktop/Hum2Song/data/train/hum/????.wav")
+     hums_list = [ss for ss in hums_set if ss.replace("song","hum") not in RM]
      hums_list.sort()
      top10 = {}
      
@@ -51,7 +76,8 @@ if __name__ == "__main__":
 
           hum = torch.from_numpy(get_chromagram(hum, hop_length=hop_length, plot=False, inbatch=True))
 
-          songs_list = glob.glob("/home/nhandt23/Desktop/Hum2Song/data/train/song/????.wav")
+          songs_set = glob.glob("/home/nhandt23/Desktop/Hum2Song/data/train/song/????.wav")
+          songs_list = [ss for ss in songs_set if ss not in RM]
           songs_list.sort()
 
           librarySet = AudioDataset(songs_list, hop_length=hop_length, shuffle=False)
@@ -67,6 +93,7 @@ if __name__ == "__main__":
                file_id, songs = batch
                songs = songs.to("cuda")
                hums = hum.repeat(batch_size,1,1).to("cuda")
+               
                losses = sdtw(songs, hums).tolist()
 
                batch_candidate = {}
